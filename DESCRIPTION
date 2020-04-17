@@ -1,0 +1,20 @@
+Package: smgr
+Title: State Machine Generator for R
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Krzysztof",
+           family = "Sakrejda",
+           role = c("aut", "cre"),
+           email = "krzysztof@mostek.io",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: The 'smgr' package provides a workflow for generating state
+  machine representations from the description of states and transitions.  It
+  handles multi-state nodes and meta-data at the node and transition level.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    dplyr, purrr, rlang, magrittr, digest
+Suggests: 
+    testthat (>= 2.1.0), jsonlite, igraph
+RoxygenNote: 7.1.0
