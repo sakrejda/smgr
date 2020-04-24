@@ -7,10 +7,10 @@ test_that("an edge between two nodes can be created and modify them.", {
   n2 = n1$transition(o)
   n1$modify(N = N, .which = 'data')
   n2$modify(N = N + 5, .which = 'data')
-  e1 = smgr:::Edge$new(
+  e1 = smgr:::DirectedEdge$new(
     from = n1, tail = list(aa = 33, z = !alive + !swimming),
     to = n2, head = list(aa = 33 - 0.5 * aa))
-  testthat::expect_true("Edge" %in% class(e1))
+  testthat::expect_true("DirectedEdge" %in% class(e1))
   e1$do(N = .from$N - 5 + .to$N)
   testthat::expect_equal(n2$data$N, 20)
   e1$do(N = 5, .which = 'source')
@@ -27,13 +27,13 @@ test_that("an edge can apply its transfers", {
   n2 = n1$transition(o)
   n1$modify(N = N, .which = 'data')
   n2$modify(N = N + 5, .which = 'data')
-  e1 = smgr:::Edge$new(
+  e1 = smgr:::DirectedEdge$new(
     from = n1, tail = list(N = .from$N - N_transfer),
     to = n2, head = list(N = .to$N + N_transfer))
-  testthat::expect_true("Edge" %in% class(e1))
-  testthat::expect_equal(n1$data$N, N)
-  testthat::expect_equal(n2$data$N, N + 5)
+  testthat::expect_true("DirectedEdge" %in% class(e1))
+  testthat::expect_equal(n1$get(N), N)
+  testthat::expect_equal(n2$get(N), N + 5)
   e1$transfer()
-  testthat::expect_equal(n1$data$N, N - N_transfer)
-  testthat::expect_equal(n2$data$N, N + 5 + N_transfer)
+  testthat::expect_equal(n1$get(N), N - N_transfer)
+  testthat::expect_equal(n2$get(N), N + 5 + N_transfer)
 })

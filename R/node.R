@@ -39,6 +39,10 @@ Node = R6::R6Class("Node",
     #' Modify node attributes as specified in dots
     #' @param ... interpreted as in `dplyr::mutate` against the node
     #'   attributes using a data mask and quosures.
+    #' @param .which either 'attributes' in which case the static node
+    #'   attributes are modified and a new node ID will be generated 
+    #'   or 'data' (anything else really) and the mutable data in the 
+    #'   node will be modified.
     #' @return modified version of self
     modify = function(..., .which = 'attributes') {
       dm = rlang::new_data_mask(
@@ -109,7 +113,10 @@ Node = R6::R6Class("Node",
       x = rlang::expr_text(x)
       if (missing (x))
         stop(msg_method_requires_arg('get', 'x'))
-      attr = rlang::env_get(private$attributes_, x, default = NULL)
+      attr = rlang::env_get(self$attr, x, default = NULL)
+      if (is.null(attr)) {
+        attr = rlang::env_get(self$data, x, default = NULL)
+      }
       return(attr)
     },
 

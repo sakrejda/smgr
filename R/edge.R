@@ -1,10 +1,29 @@
 Node = R6::R6Class("Node", lock_class=FALSE)
 
-#' R6 class representing the edge between two nodes
+#' R6 class representing the directed edge between two nodes
 #'
-Edge = R6::R6Class("Edge", 
+#' Edges in graph building are implicit (stored as child nodes for 
+#' each node) so these edges are used primarily for implementing 
+#' simulation.  They store references to the parent nodes and 
+#' they can modfiy both nodes.
+DirectedEdge = R6::R6Class("DirectedEdge", 
   public = list(
+    #' @description Used as DirectedEdge$new(...) create a new edge
+    #'   between two nodes.  
+    #'
+    #' @param from (directed) edge originates at this node
+    #' @param tail effect of edge on the ('from') node it originates
+    #'   from as a list of `dplyr::mutate`-style expressions.  The 
+    #'   expressions can access the special objects `.from` and `.to` 
+    #'   which are used to access the nodes at the head or tail of 
+    #'   the edge.  They are used as `.from$foo` to access attribute or
+    #'   or data `foo` in the tail node.
+    #' @param to (directed) edge goes to this node
+    #' @param head parallel to `tail`, but for the `to` node.
+    #' @return a 'DirectedEdge' object
     initialize = function(from, tail, to, head) {
+      stopifnot(is(from, 'Node'))
+      stopifnot(is(to, 'Node'))
       private$source_ = from
       private$target_ = to
       head = rlang::enquo(head)
