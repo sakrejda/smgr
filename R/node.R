@@ -15,6 +15,7 @@ Node = R6::R6Class("Node",
     initialize = function(name, ..., .children = NodeSet$new()) {
       private$name_ <<- name
       private$attributes_ <<- rlang::env()
+      private$data_ <<- rlang::child_env(private$attributes_)
       att = list(...)
       rlang::env_bind(private$attributes_, !!!att)
       private$children_ <<- .children
@@ -24,14 +25,14 @@ Node = R6::R6Class("Node",
     #' Check whether this node matches conditions specified in dots
     #' @param ... interpreted as in `dplyr::filter` against the node
     #'   attributes.
-    #' @return TRUE if the tests pass
+    #' @return TRUE iff the tests pass
     matches = function(...) {
       test = rlang::enquos(...)
       dm = rlang::new_data_mask(
-        bottom = private$attributes_,
-        top = private$attributes_)
-      modified = purrr::map_lgl(test, rlang::eval_tidy, data = dm)
-      return(all(modified))
+        bottom = self$data,
+        top = self$attr)
+      matched = purrr::map_lgl(test, rlang::eval_tidy, data = dm)
+      return(isTRUE(all(matched)))
     },
     
     #' @description
@@ -39,12 +40,16 @@ Node = R6::R6Class("Node",
     #' @param ... interpreted as in `dplyr::mutate` against the node
     #'   attributes using a data mask and quosures.
     #' @return modified version of self
-    modify = function(...) {
+    modify = function(..., .which = 'attributes') {
       dm = rlang::new_data_mask(
-        bottom = private$attributes_,
-        top = private$attributes_)
+        bottom = self$data,
+        top = self$attr)
       modified = purrr::map(list(...), rlang::eval_tidy, data = dm)
-      rlang::env_bind(.env = private$attributes_, !!!modified)
+      if (isTRUE(.which == 'attributes')) {
+        rlang::env_bind(.env = self$attr, !!!modified)
+      } else {
+        rlang::env_bind(.env = self$data, !!!modified)
+      }
       return(self)
     },
     
@@ -67,6 +72,8 @@ Node = R6::R6Class("Node",
     #' @param x another Node object.
     #' @return modified self
     merge = function(x) {
+      if (self$id != x$id)
+        stop("Can not merge nodes with different attributes.")
       other_ids = x$child_ids
       other_children = x$children
       for (i in seq_along(other_ids)) {
@@ -119,10 +126,13 @@ Node = R6::R6Class("Node",
   private = list(
     name_ = "",
     attributes_ = rlang::env(),
+    data_ = rlang::env(),
     children_ = NodeSet$new(),
     deep_clone = function(name, value) {
       if (name == 'attributes_')
         return(rlang::env_clone(private$attributes_))
+      if (name == 'data_')
+        return(rlang::child_env(private$attributes_))
       if (name == 'children_')
         return(private$children_$clone(deep = TRUE))
       return(value)
@@ -165,6 +175,23 @@ Node = R6::R6Class("Node",
     attributes = function() {
       attr = names(private$attributes_)
       return(attr)
+    },
+
+    #' @field attributes node attributes
+    attr = function() {
+      return(private$attributes_)
+    },
+
+    #' @field data node data
+    data = function() {
+      if (!identical(rlang::env_parent(private$data_), private$attributes_)) {
+        data_e = rlang::child_env(private$attributes_)
+        for (nm in rlang::env_names(private$data_)) {
+          rlang::env_bind(data_e, !!nm := rlang::env_get(private$data_, nm))
+        }
+        private$data_ = data_e
+      }
+      return(private$data_)
     },
 
     #' @field json node attribute contents as JSON

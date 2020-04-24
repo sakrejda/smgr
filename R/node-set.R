@@ -42,6 +42,29 @@ NodeSet = R6::R6Class("NodeSet",
         return(FALSE)
     },
 
+    #' @description insert a new edge into the set, if it is identical
+    #' to a current link, merge it into that link
+    #'
+    #' @param from id of originating node
+    #' @param to id of target node
+    #' @param f transfer function implementing the edge
+    #' @return id of edge
+    link = function(from, to, f = NULL) {
+      if (!(from %in% names(private$edges_))) {
+        private$edges_[[from]] = list()
+      }
+      if (!(to %in% names(private$edges_[[from]]))) {
+        private$edges_[[from]][[to]] = list()
+      }
+      if (!is.null(f)) {
+          private$edges_[[from]][[to]] = c(
+            private$edges_[[from]][[to]], f)
+      }
+      private$edge_list_ = c(
+        private$edge_list_, c(from = from, to = to))
+      return(private$edge_list_)
+    },
+
     #' @description clear the current nodes from the set
     clear = function() {
       private$nodes_ = list()
@@ -58,6 +81,8 @@ NodeSet = R6::R6Class("NodeSet",
 
     #' @description return a subset node set with only a subset of
     #'              nodes.
+    #' @param ... expression (matches `dplyr::filter` used to subset
+    #' @return subset of nodes
     filter = function(...) {
       o = NodeSet$new() 
       ids = self$ids
@@ -94,6 +119,8 @@ NodeSet = R6::R6Class("NodeSet",
           for (id in ids) {
             new_node = self$transition(id, trz)
             modified = modified || self$insert(new_node)
+            # FIXME: next steps
+#            self$link(id, new_node$id, trz$transfer)
           }
         }
       }
@@ -118,7 +145,9 @@ NodeSet = R6::R6Class("NodeSet",
     }
   ),
   private = list(
-    nodes_ = list()
+    nodes_ = list(),
+    edges_ = list(),
+    edge_list_ = list()
   ),
   active = list(
 

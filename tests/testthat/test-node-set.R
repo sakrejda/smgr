@@ -130,9 +130,9 @@ test_that("a node set can use a process to build itself out", {
 })
 
 # Using the state machine for simulation, simplest example.
-test_that("a node set can use a process to build itself out", {
+test_that("a node set can use a process to simulate", {
   n_list = NodeSet$new(
-    n1 = Node$new("fish", 
+    Node$new("fish", 
       alive = TRUE, tagged = FALSE, N = 100))
   process = Process$new(
     Transition$new("die", 
@@ -143,4 +143,5 @@ test_that("a node set can use a process to build itself out", {
       transformation = list(tagged = TRUE))
   )
   n_list$build(process)
+  ## FIXME: in progress!
 })

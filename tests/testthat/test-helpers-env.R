@@ -1,0 +1,23 @@
+test_that("objects can be copied between environments", {
+  e1 = rlang::env()
+  e2 = rlang::env()
+  data = rnorm(20)
+  rlang::env_bind(e1, x = data)
+  rlang::env_bind(e2, x = NA)
+  smgr::env_copy(e1, e2, 'x')
+  testthat::expect_equal(e2$x, data)
+  testthat::expect_equal(e1$x, data)
+})
+
+test_that("objects can be copied between environments", {
+  e1 = rlang::env()
+  e2 = rlang::env()
+  data = rnorm(20)
+  rlang::env_bind(e1, x = data)
+  rlang::env_bind(e2, x = NA)
+  rlang::env_bind(e2, y = 33)
+  smgr::env_move(e1, e2, 'x')
+  testthat::expect_equal(e2$x, data)
+  testthat::expect_equal(e2$y, 33)
+  testthat::expect_false('x' %in% rlang::env_names(e1))
+})

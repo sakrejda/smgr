@@ -21,7 +21,8 @@ Transition = R6::R6Class("Transition",
       match = rlang::enquo(match)
       match = rlang::as_quosures(x = match[[2]], env = rlang::quo_get_env(match))
       transformation = rlang::enquo(transformation)
-      transformation = rlang::as_quosures(x = transformation[[2]], env = rlang::quo_get_env(transformation))
+      transformation = rlang::as_quosures(x = transformation[[2]], 
+                                          env = rlang::quo_get_env(transformation))
       private$process_ = process
       private$match_ = match[-1] 
       private$transformation_ = transformation[-1]

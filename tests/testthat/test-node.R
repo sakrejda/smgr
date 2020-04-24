@@ -3,6 +3,14 @@ test_that("a node can be created", {
   testthat::expect_true("Node" %in% class(n))
 })
 
+test_that("a node can expose its environments", {
+  n = Node$new("dead fish", alive = FALSE, swimming = FALSE)
+  att = ls(n$attr)
+  dat = n$data
+  testthat::expect_true(all(att %in% c('alive', 'swimming')))
+  testthat::expect_true(isTRUE(is.environment(dat)))
+})
+
 test_that("a node can return an attribute", {
   n = Node$new("dead fish", alive = FALSE, swimming = FALSE)
   testthat::expect_true("Node" %in% class(n))
@@ -65,6 +73,16 @@ test_that("new nodes can be modified consistently", {
   n2 = n2$modify(alive = TRUE)
   testthat::expect_equal(n1$id, n2$id)
   testthat::expect_equal(n1$matches(isTRUE(alive)), n2$matches(isTRUE(alive)))
+})
+
+test_that("new nodes can have their simulation data modified without affecting ID's", {
+  n1 = Node$new("dead fish", alive = FALSE, swimming = FALSE)
+  n2 = n1$clone(deep = TRUE)
+  n1 = n1$modify(N = 33, .which = 'data')
+  n2 = n2$modify(N = 34, .which = 'data')
+  testthat::expect_equal(n1$id, n2$id)
+  testthat::expect_true(n1$matches(N == 33))
+  testthat::expect_true(n2$matches(N == 34))
 })
 
 test_that("new nodes can be spawned modified.", {
