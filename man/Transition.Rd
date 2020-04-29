@@ -35,7 +35,6 @@ environments.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{Transition$new()}}
-\item \href{#method-do}{\code{Transition$do()}}
 \item \href{#method-clone}{\code{Transition$clone()}}
 }
 }
@@ -61,26 +60,6 @@ Used as Transition$new(...) create a new transition
 }
 \subsection{Returns}{
 a 'Transition' object
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-do"></a>}}
-\if{latex}{\out{\hypertarget{method-do}{}}}
-\subsection{Method \code{do()}}{
-Apply this transition to a node if the node matches
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Transition$do(x, mutate = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{x}}{a 'Node' object}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-a child 'Node' object created by applying the transition, if applicable
 }
 }
 \if{html}{\out{<hr>}}

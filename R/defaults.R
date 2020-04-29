@@ -4,6 +4,7 @@
 #' @description imported functions
 #' @details pipes
 #' @importFrom dplyr `%>%` 
+#' @export
 `%>%` = magrittr::`%>%`
 
 #' Default separator

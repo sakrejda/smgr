@@ -22,11 +22,13 @@ required functionality (determined by downstrea).
 
 \item{\code{child_ids}}{character vector of child ids}
 
-\item{\code{attributes}}{node attribute names as a string}
+\item{\code{attributes}}{node attributes}
 
-\item{\code{json}}{node attribute contents as JSON}
+\item{\code{data}}{node data}
 
-\item{\code{edges}}{lists (one per edge) of list(from = <FROM_ID> to = <TO_ID>)}
+\item{\code{dump}}{contents as a list}
+
+\item{\code{json}}{node contents as JSON}
 }
 \if{html}{\out{</div>}}
 }
@@ -35,11 +37,12 @@ required functionality (determined by downstrea).
 \itemize{
 \item \href{#method-new}{\code{Node$new()}}
 \item \href{#method-matches}{\code{Node$matches()}}
-\item \href{#method-modify}{\code{Node$modify()}}
+\item \href{#method-mutate}{\code{Node$mutate()}}
 \item \href{#method-spawn}{\code{Node$spawn()}}
 \item \href{#method-merge}{\code{Node$merge()}}
 \item \href{#method-disown}{\code{Node$disown()}}
-\item \href{#method-transition}{\code{Node$transition()}}
+\item \href{#method-transform}{\code{Node$transform()}}
+\item \href{#method-modify}{\code{Node$modify()}}
 \item \href{#method-get}{\code{Node$get()}}
 \item \href{#method-has}{\code{Node$has()}}
 \item \href{#method-clone}{\code{Node$clone()}}
@@ -87,16 +90,16 @@ attributes.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-TRUE if the tests pass
+TRUE iff the tests pass
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-modify"></a>}}
-\if{latex}{\out{\hypertarget{method-modify}{}}}
-\subsection{Method \code{modify()}}{
+\if{html}{\out{<a id="method-mutate"></a>}}
+\if{latex}{\out{\hypertarget{method-mutate}{}}}
+\subsection{Method \code{mutate()}}{
 Modify node attributes as specified in dots
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Node$modify(...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Node$mutate(..., .which = "attributes")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -104,6 +107,11 @@ Modify node attributes as specified in dots
 \describe{
 \item{\code{...}}{interpreted as in `dplyr::mutate` against the node
 attributes using a data mask and quosures.}
+
+\item{\code{.which}}{either 'attributes' in which case the static node
+attributes are modified and a new node ID will be generated 
+or 'data' (anything else really) and the mutable data in the 
+node will be modified.}
 }
 \if{html}{\out{</div>}}
 }
@@ -115,7 +123,7 @@ modified version of self
 \if{html}{\out{<a id="method-spawn"></a>}}
 \if{latex}{\out{\hypertarget{method-spawn}{}}}
 \subsection{Method \code{spawn()}}{
-Deep-clone the node and modify node attributes as specified in dots
+Deep-clone the node and mutate node attributes as specified in dots
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Node$spawn(...)}\if{html}{\out{</div>}}
 }
@@ -167,12 +175,12 @@ self, without children
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-transition"></a>}}
-\if{latex}{\out{\hypertarget{method-transition}{}}}
-\subsection{Method \code{transition()}}{
-Apply transformations described in a Transition object
+\if{html}{\out{<a id="method-transform"></a>}}
+\if{latex}{\out{\hypertarget{method-transform}{}}}
+\subsection{Method \code{transform()}}{
+Create a new node using transformations described in a Transition object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Node$transition(x, mutate = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Node$transform(x)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -184,6 +192,26 @@ Apply transformations described in a Transition object
 }
 \subsection{Returns}{
 a *child* object created by applying the transition
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-modify"></a>}}
+\if{latex}{\out{\hypertarget{method-modify}{}}}
+\subsection{Method \code{modify()}}{
+Modify the current node using transformations described in a Transition object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Node$modify(x)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{transition object}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+self object created by applying the transition
 }
 }
 \if{html}{\out{<hr>}}

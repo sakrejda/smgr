@@ -65,28 +65,32 @@ test_that("a node set can return a member", {
 })
 
 test_that("a node set can return all member contents", {
-  n1 = Node$new("Bear fish", alive = TRUE, location = "Bear brook", tagged = FALSE)
-  n2 = Node$new("Mainstem fish", alive = TRUE, location = "Main stem", tagged = FALSE)
-  n_list = NodeSet$new(n1, n2)
-  contents = n_list$contents
-  purrr::map2(contents, n_list$attributes, ~ testthat::expect_true(isTRUE(all(names(.x) == .y))))
-  testthat::expect_true(contents[[1]]$alive)
-  testthat::expect_true(contents[[2]]$alive)
-  testthat::expect_false(contents[[1]]$tagged)
-  testthat::expect_false(contents[[2]]$tagged)
-  testthat::expect_equal(contents[[1]]$location, "Bear brook")
-  testthat::expect_equal(contents[[2]]$location, "Main stem")
+  n1 = smgr:::Node$new("Bear fish", 
+    alive = TRUE, location = "Bear brook", tagged = FALSE)
+  n2 = smgr:::Node$new("Mainstem fish", 
+    alive = TRUE, location = "Main stem", tagged = FALSE)
+  n_list = smgr:::NodeSet$new(n1, n2)
+  attributes = n_list$attributes
+  testthat::expect_true(attributes[[1]]$alive)
+  testthat::expect_true(attributes[[2]]$alive)
+  testthat::expect_false(attributes[[1]]$tagged)
+  testthat::expect_false(attributes[[2]]$tagged)
+  testthat::expect_equal(attributes[[1]]$location, "Bear brook")
+  testthat::expect_equal(attributes[[2]]$location, "Main stem")
 })
 
 # Creating the state machine description, simplest example.
 test_that("a node set can use a process to build itself out", {
-  n1 = Node$new("Bear fish", alive = TRUE, location = "Bear brook", tagged = FALSE)
-  n2 = Node$new("Mainstem fish", alive = TRUE, location = "Main stem", tagged = FALSE)
-  n_list = NodeSet$new(n1, n2)
-  trz_list = list(
-    Transition$new("die", match = list(isTRUE(alive)), transformation = list(alive = FALSE)),
-    Transition$new("tag", match = list(!isTRUE(tagged), isTRUE(alive)), transformation = list(tagged = TRUE)))
-  process = do.call(Process$new, trz_list)
+  n1 = smgr:::Node$new("Bear fish", 
+    alive = TRUE, location = "Bear brook", tagged = FALSE)
+  n2 = smgr:::Node$new("Mainstem fish", 
+    alive = TRUE, location = "Main stem", tagged = FALSE)
+  n_list = smgr:::NodeSet$new(n1, n2)
+  process = smgr:::Process$new(
+    smgr:::Transition$new("die", match = list(isTRUE(alive)), 
+      transformation = list(alive = FALSE)),
+    smgr:::Transition$new("tag", match = list(!isTRUE(tagged), isTRUE(alive)), 
+      transformation = list(tagged = TRUE)))
   testthat::expect_equivalent(n_list$ids, c(n1$id, n2$id))
   testthat::expect_equal(n_list$size, 2)
   n_list$build(process)
@@ -94,29 +98,29 @@ test_that("a node set can use a process to build itself out", {
 })
 
 # Using the state machine for in-place modification, simplest example.
-test_that("a node set can use a process to build itself out", {
-  n1 = Node$new("Bear fish", 
+test_that("a node set can mutate its properties", {
+  n1 = smgr:::Node$new("Bear fish", 
     alive = TRUE, location = "Bear brook", tagged = FALSE, N = 100)
-  n2 = Node$new("Mainstem fish", 
+  n2 = smgr:::Node$new("Mainstem fish", 
     alive = TRUE, location = "Main stem", tagged = FALSE, N = 10)
-  n_set = NodeSet$new(n1, n2)
-  process = Process$new(
-    Transition$new("die", 
+  n_set = smgr:::NodeSet$new(n1, n2)
+  process = smgr:::Process$new(
+    smgr:::Transition$new("die", 
       match = list(isTRUE(alive)), 
       transformation = list(alive = FALSE, N = 0)),
-    Transition$new("tag", ## tag 10 fish to start
+    smgr:::Transition$new("tag", ## tag 10 fish to start
       match = list(!isTRUE(tagged), isTRUE(alive)), 
       transformation = list(tagged = TRUE, N = 0)))
   testthat::expect_equivalent(n_set$ids, c(n1$id, n2$id))
   testthat::expect_equal(n_set$size, 2)
   n_set$build(process)
   testthat::expect_equal(n_set$size, 8)
-  sim_process = Process$new(
-    Transition$new("deaths_removal",
+  sim_process = smgr:::Process$new(
+    smgr:::Transition$new("deaths_removal",
       match = list(isTRUE(alive), location == "Bear brook", !isTRUE(tagged)),
       transformation = list(N = N - 15)
     ),
-    Transition$new("deaths_recording",
+    smgr:::Transition$new("deaths_recording",
       match = list(!isTRUE(alive), location == "Bear brook", !isTRUE(tagged)),
       transformation = list(N = N + 15))
   )

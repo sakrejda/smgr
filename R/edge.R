@@ -1,4 +1,5 @@
 Node = R6::R6Class("Node", lock_class=FALSE)
+Transition = R6::R6Class("Transition", lock_class=FALSE)
 
 #' R6 class representing the directed edge between two nodes
 #'
@@ -25,51 +26,48 @@ DirectedEdge = R6::R6Class("DirectedEdge",
       stopifnot(is(from, 'Node'))
       stopifnot(is(to, 'Node'))
       private$source_ = from
+      private$tail_ = tail
       private$target_ = to
-      head = rlang::enquo(head)
-      head = rlang::as_quosures(x = head[[2]],
-                                    env = rlang::quo_get_env(head))
-      private$head_ = head[-1]
-      tail = rlang::enquo(tail)
-      tail = rlang::as_quosures(x = tail[[2]],
-                                    env = rlang::quo_get_env(tail))
-      private$tail_ = tail[-1]
+      private$head_ = head
     },
-    do = function(..., .which = 'target') {
+    do = function(...) {
       e_from = rlang::child_env(self$base)
       e_to = rlang::child_env(self$base)
       e_exec = rlang::child_env(self$base)
       rlang::env_bind(.env = e_exec, .from = e_from, .to = e_to)
-      env_copy(from = self$source$attr, 
-        to = e_from, nms = ls(self$source$attr))
+      env_copy(from = self$source$attributes, 
+        to = e_from, nms = ls(self$source$attributes))
       env_copy(from = self$source$data, 
         to = e_from, nms = ls(self$source$data))
-      env_copy(from = self$target$attr, 
-        to = e_to, nms = ls(self$target$attr))
+      env_copy(from = self$target$attributes, 
+        to = e_to, nms = ls(self$target$attributes))
       env_copy(from = self$target$data, 
         to = e_to, nms = ls(self$target$data))
       dm = rlang::new_data_mask(
         bottom = e_exec,
         top = self$base)
       modified = purrr::map(rlang::enquos(...), rlang::eval_tidy, data = dm)
-      if (isTRUE(.which == 'target')) {
-        rlang::env_bind(.env = private$target_$data, !!!modified)
-      } else {
-        rlang::env_bind(.env = private$source_$data, !!!modified)
-      }
-      return(self)
+      return(modified)
     }, 
     transfer = function() {
-      self$do(!!!private$head_, .which = 'target')
-      self$do(!!!private$tail_, .which = 'source')
+      match_head = purrr::lift_dl(private$target_$matches)(private$head_$match)
+      if (match_head) {
+        modified = purrr::lift_dl(self$do)(private$head_$transformation)
+        rlang::env_bind(.env = private$target_$data, !!!modified)
+      } 
+      match_tail = purrr::lift_dl(private$source_$matches)(private$tail_$match)
+      if (match_tail) {
+        modified = purrr::lift_dl(self$do)(private$tail_$transformation)
+        rlang::env_bind(.env = private$source_$data, !!!modified)
+      } 
       return(self)
     }
   ),
   private = list(
     source_ = Node$new(),
     target_ = Node$new(),
-    head_ = rlang::enquos(),
-    tail_ = rlang::enquos(),
+    head_ = Transition$new(),
+    tail_ = Transition$new(),
     base_ = rlang::env()
   ),
   active = list(

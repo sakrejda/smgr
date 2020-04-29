@@ -26,25 +26,6 @@ Transition = R6::R6Class("Transition",
       private$process_ = process
       private$match_ = match[-1] 
       private$transformation_ = transformation[-1]
-    },
-
-    #' @description Apply this transition to a node if the node matches
-    #'
-    #' @param x a 'Node' object
-    #' @return a child 'Node' object created by applying the transition, if applicable
-    do = function(x, mutate = FALSE) {
-      stopifnot("Node" %in% class(x))
-      match = x$matches(!!!private$match_)
-      if (match) {
-        if (mutate) {
-          x_child = purrr::lift_dl(x$modify)(private$transformation_)
-        } else {
-          x_child = purrr::lift_dl(x$spawn)(private$transformation_)
-        }
-      } else {
-        x_child = NULL
-      }
-      return(x_child)
     }
   ),
   private = list(

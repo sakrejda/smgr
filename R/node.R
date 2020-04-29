@@ -30,7 +30,7 @@ Node = R6::R6Class("Node",
       test = rlang::enquos(...)
       dm = rlang::new_data_mask(
         bottom = self$data,
-        top = self$attr)
+        top = self$attributes)
       matched = purrr::map_lgl(test, rlang::eval_tidy, data = dm)
       return(isTRUE(all(matched)))
     },
@@ -44,13 +44,13 @@ Node = R6::R6Class("Node",
     #'   or 'data' (anything else really) and the mutable data in the 
     #'   node will be modified.
     #' @return modified version of self
-    modify = function(..., .which = 'attributes') {
+    mutate = function(..., .which = 'attributes') {
       dm = rlang::new_data_mask(
         bottom = self$data,
-        top = self$attr)
+        top = self$attributes)
       modified = purrr::map(list(...), rlang::eval_tidy, data = dm)
       if (isTRUE(.which == 'attributes')) {
-        rlang::env_bind(.env = self$attr, !!!modified)
+        rlang::env_bind(.env = self$attributes, !!!modified)
       } else {
         rlang::env_bind(.env = self$data, !!!modified)
       }
@@ -58,13 +58,13 @@ Node = R6::R6Class("Node",
     },
     
     #' @description
-    #' Deep-clone the node and modify node attributes as specified in dots
+    #' Deep-clone the node and mutate node attributes as specified in dots
     #' @param ... interpreted as in `dplyr::mutate` against the node
     #'   attributes using a data mask and quosures.
     #' @return modified version of the cloned node
     spawn = function(...) {
       clone = self$clone(deep = TRUE)
-      clone$modify(...)
+      clone$mutate(...)
       clone$disown()
       private$add_child(clone)
       return(clone)
@@ -95,12 +95,32 @@ Node = R6::R6Class("Node",
     },
     
     #' @description 
-    #' Apply transformations described in a Transition object
+    #' Create a new node using transformations described in a Transition object
     #' @param x transition object
     #' @return a *child* object created by applying the transition
-    transition = function(x, mutate = FALSE) {
+    transform = function(x) {
       stopifnot("Transition" %in% class(x))
-      child = x$do(self, mutate)
+      match = purrr::lift_dl(self$matches)(x$match)
+      if (match) {
+        child = purrr::lift_dl(self$spawn)(x$transformation)
+      } else {
+        child = NULL
+      }
+      return(child)
+    },
+
+    #' @description 
+    #' Modify the current node using transformations described in a Transition object
+    #' @param x transition object
+    #' @return self object created by applying the transition
+    modify = function(x) {
+      stopifnot("Transition" %in% class(x))
+      match = purrr::lift_dl(self$matches)(x$match)
+      if (match) {
+        child = purrr::lift_dl(self$mutate)(x$transformation)
+      } else {
+        child = NULL
+      }
       return(child)
     },
     
@@ -113,7 +133,7 @@ Node = R6::R6Class("Node",
       x = rlang::expr_text(x)
       if (missing (x))
         stop(msg_method_requires_arg('get', 'x'))
-      attr = rlang::env_get(self$attr, x, default = NULL)
+      attr = rlang::env_get(self$attributes, x, default = NULL)
       if (is.null(attr)) {
         attr = rlang::env_get(self$data, x, default = NULL)
       }
@@ -178,14 +198,8 @@ Node = R6::R6Class("Node",
       return(ids_)
     },
 
-    #' @field attributes node attribute names as a string
-    attributes = function() {
-      attr = names(private$attributes_)
-      return(attr)
-    },
-
     #' @field attributes node attributes
-    attr = function() {
+    attributes = function() {
       return(private$attributes_)
     },
 
@@ -201,15 +215,15 @@ Node = R6::R6Class("Node",
       return(private$data_)
     },
 
-    #' @field json node attribute contents as JSON
-    json = function() {
-      attr_list = as.list(private$attributes_)
-      json = jsonlite::toJSON(attr_list)
-      return(json)
-    },
+    #' @field dump contents as a list
+    dump = function() c(as.list(self$attributes), as.list(self$data)),
 
-    #' @field edges lists (one per edge) of list(from = <FROM_ID> to = <TO_ID>)
-    edges = function() as_edges(self)
+    #' @field json node contents as JSON
+    json = function() {
+      json = jsonlite::toJSON(self$dump)
+      return(json)
+    }
+
   )
 )
 

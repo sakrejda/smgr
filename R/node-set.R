@@ -93,14 +93,17 @@ NodeSet = R6::R6Class("NodeSet",
       return(o)
     },
 
-    #' @description apply the given transition to the node with the matching
-    #' id
-    #'
-    #' @param id id of the node to apply transition to
-    #' @param transition transition to apply
-    #' @return TRUE iff the transition created a new node.
-    transition = function(id, transition, mutate = FALSE) {
-      return(private$nodes_[[id]]$transition(transition, mutate))
+    #' @description modify nodes returns modified nodes *also* modifies
+    #'              original
+    #' @param ... expression (matches `dplyr::mutate`) used to modify
+    #' @return modified nodes
+    mutate = function(..., .which = 'data') {
+      ids = self$ids
+      for (id in ids) {
+        self$get(id)$mutate(..., .which = .which)
+        names(private$nodes_) = self$ids
+      }
+      return(self)
     },
 
     #' @description apply a process (a list of transitions) to all nodes
@@ -117,10 +120,8 @@ NodeSet = R6::R6Class("NodeSet",
           trz = process$get_transition(i)
           ids = self$ids
           for (id in ids) {
-            new_node = self$transition(id, trz)
+            new_node = self$get(id)$transform(trz)
             modified = modified || self$insert(new_node)
-            # FIXME: next steps
-#            self$link(id, new_node$id, trz$transfer)
           }
         }
       }
@@ -137,7 +138,7 @@ NodeSet = R6::R6Class("NodeSet",
         trz = process$get_transition(i)
         ids = self$ids
         for (id in ids) {
-          self$transition(id, trz, mutate = TRUE)
+          self$get(id)$modify(trz)
           names(private$nodes_) = self$ids
         }
       }
@@ -165,16 +166,23 @@ NodeSet = R6::R6Class("NodeSet",
     child_ids = function(x) purrr::map(private$nodes_, ~ .$child_ids),
 
     #' @field attributes list of attributes of all nodes
-    attributes = function(x) purrr::map(private$nodes_, ~ .$attributes),
+    attributes = function(x) {
+      attr = purrr::map(private$nodes_, ~ as.list(.$attributes))
+      names(attr) = self$ids
+      return(attr)
+    },
 
-    #' @field contents list of attributes of all nodes in the set.
-    contents = function(x) {
-      values = purrr::map2(private$nodes_, self$attributes, function(.x, .y) {
-        node = .x
-        v = purrr::map(.y, ~ node$get(!!.)) %>% purrr::set_names(.y)
-        return(v)
-      })
-      return(values)
+    #' @field data list of data of all nodes
+    data = function(x) {
+      data = purrr::map(private$nodes_, ~ as.list(.$data))
+      names(data) = self$ids
+      return(data)
+    },
+
+    #' @field dump all data/attributes from all nodes as lists
+    dump = function() {
+      o = purrr::map(private$nodes_, ~ .$dump)
+      return(o)
     }
   )
 )

@@ -24,7 +24,7 @@ insert.
 
 \item{\code{attributes}}{list of attributes of all nodes}
 
-\item{\code{contents}}{list of attributes of all nodes in the set.}
+\item{\code{data}}{list of data of all nodes}
 }
 \if{html}{\out{</div>}}
 }
@@ -33,10 +33,11 @@ insert.
 \itemize{
 \item \href{#method-new}{\code{NodeSet$new()}}
 \item \href{#method-insert}{\code{NodeSet$insert()}}
+\item \href{#method-link}{\code{NodeSet$link()}}
 \item \href{#method-clear}{\code{NodeSet$clear()}}
 \item \href{#method-get}{\code{NodeSet$get()}}
 \item \href{#method-filter}{\code{NodeSet$filter()}}
-\item \href{#method-transition}{\code{NodeSet$transition()}}
+\item \href{#method-mutate}{\code{NodeSet$mutate()}}
 \item \href{#method-build}{\code{NodeSet$build()}}
 \item \href{#method-modify}{\code{NodeSet$modify()}}
 \item \href{#method-clone}{\code{NodeSet$clone()}}
@@ -86,6 +87,31 @@ size increases).
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-link"></a>}}
+\if{latex}{\out{\hypertarget{method-link}{}}}
+\subsection{Method \code{link()}}{
+insert a new edge into the set, if it is identical
+to a current link, merge it into that link
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{NodeSet$link(from, to, f = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{from}}{id of originating node}
+
+\item{\code{to}}{id of target node}
+
+\item{\code{f}}{transfer function implementing the edge}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+id of edge
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clear"></a>}}
 \if{latex}{\out{\hypertarget{method-clear}{}}}
 \subsection{Method \code{clear()}}{
@@ -125,28 +151,36 @@ return a subset node set with only a subset of
 \if{html}{\out{<div class="r">}}\preformatted{NodeSet$filter(...)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{expression (matches `dplyr::filter` used to subset}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+subset of nodes
+}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-transition"></a>}}
-\if{latex}{\out{\hypertarget{method-transition}{}}}
-\subsection{Method \code{transition()}}{
-apply the given transition to the node with the matching
-id
+\if{html}{\out{<a id="method-mutate"></a>}}
+\if{latex}{\out{\hypertarget{method-mutate}{}}}
+\subsection{Method \code{mutate()}}{
+modify nodes returns modified nodes *also* modifies
+             original
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{NodeSet$transition(id, transition, mutate = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{NodeSet$mutate(..., .which = "data")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{id}}{id of the node to apply transition to}
-
-\item{\code{transition}}{transition to apply}
+\item{\code{...}}{expression (matches `dplyr::mutate`) used to modify}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-TRUE iff the transition created a new node.
+modified nodes
 }
 }
 \if{html}{\out{<hr>}}
