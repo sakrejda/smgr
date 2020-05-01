@@ -71,11 +71,14 @@ NodeSet = R6::R6Class("NodeSet",
       return(invisible(NULL))
     }, 
 
-    #' @description get a specific node from the set
+    #' @description get a node from the set
     #'
     #' @param id hash of the node
     #' @return node with the 'id', or NULL if missing
-    get = function(id) {
+    get = function(x) {
+      ids = self$ids
+      match = grepl(pattern = x, x = ids, fixed = TRUE)
+      id = ids[match][1]
       return(private$nodes_[[id]])
     },
 

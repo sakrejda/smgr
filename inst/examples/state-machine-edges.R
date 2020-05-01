@@ -47,10 +47,7 @@ process = smgr:::Process$new(
 nodes$build(process)
 
 
-# Initialize simulation
-ids = nodes$ids
-str(nodes$contents)
-
+# Initialize simulation parameters
 swim_in_tag_brook = nodes %>%
   smgr::filter(alive, location == "Tag Brook", !captured, !tag_reading) %>%
   smgr::mutate(
@@ -70,5 +67,29 @@ swim_in_main_stem = nodes %>%
 captured = nodes %>% 
   smgr::filter(alive, captured, !tag_reading) %>%
   smgr::mutate(death_rate = .05)
+
+# Initialize populations
+nodes %>% 
+  smgr::filter(alive, !captured, !tagged, !tag_reading,
+               location == "Tag Brook") %>%
+  smgr::mutate(count = 194)
+nodes %>% 
+  smgr::filter(alive, !captured, !tagged, !tag_reading,
+               location == "main stem") %>%
+  smgr::mutate(count = 538)
+
+# Define edges / flows (what's the UX here?)
+migration = smgr:::DirectedEdge$new(
+  from = nodes$get('999be65e4685'),
+  tail = smgr:::Transition$new("emigration",
+    transformation = list(
+      emigrant_count = rbinom(n = 1, size = .from$count, prob = 1 - exp(-.from$emigration_rate)),
+      count = .from$count - emigrant_count
+    )),
+  to = nodes$get('652b058320'),
+  head = smgr:::Transition$new('immigration',
+    transformation = list(
+      count = .to$count + .from$emigrant_count))
+)
 
 

@@ -3,7 +3,7 @@
 #' @title External imported functions widely used
 #' @description imported functions
 #' @details pipes
-#' @importFrom dplyr `%>%` 
+#' @importFrom magrittr `%>%` 
 #' @export
 `%>%` = magrittr::`%>%`
 
