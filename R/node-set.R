@@ -82,6 +82,13 @@ NodeSet = R6::R6Class("NodeSet",
       return(private$nodes_[[id]])
     },
 
+    #' @description pop the set, return the remaining node or 
+    #' error if multiple nodes remain
+    pop = function() {
+      stopifnot(length(private$nodes_) == 1)
+      return(private$nodes_[[1]])
+    },
+
     #' @description return a subset node set with only a subset of
     #'              nodes.
     #' @param ... expression (matches `dplyr::filter` used to subset

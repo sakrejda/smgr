@@ -10,3 +10,8 @@ filter = function(.data, ...) .data$filter(...)
 #' @return NodeSet
 #' @export
 mutate = function(.data, ...) .data$mutate(..., .which = 'data')
+
+#' @param .data NodeSet
+#' @return single remaining node or error
+#' @export
+pop = function(.data) .data$pop()

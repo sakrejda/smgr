@@ -30,7 +30,7 @@ DirectedEdge = R6::R6Class("DirectedEdge",
       private$target_ = to
       private$head_ = head
     },
-    do = function(...) {
+    transfer = function() {
       e_from = rlang::child_env(self$base)
       e_to = rlang::child_env(self$base)
       e_exec = rlang::child_env(self$base)
@@ -46,19 +46,21 @@ DirectedEdge = R6::R6Class("DirectedEdge",
       dm = rlang::new_data_mask(
         bottom = e_exec,
         top = self$base)
-      modified = purrr::map(rlang::enquos(...), rlang::eval_tidy, data = dm)
-      return(modified)
-    }, 
-    transfer = function() {
-      match_head = purrr::lift_dl(private$target_$matches)(private$head_$match)
-      if (match_head) {
-        modified = purrr::lift_dl(self$do)(private$head_$transformation)
-        rlang::env_bind(.env = private$target_$data, !!!modified)
-      } 
       match_tail = purrr::lift_dl(private$source_$matches)(private$tail_$match)
       if (match_tail) {
-        modified = purrr::lift_dl(self$do)(private$tail_$transformation)
-        rlang::env_bind(.env = private$source_$data, !!!modified)
+        for (i in 1:length(private$tail_$transformation)) {
+          modified = purrr::map(private$tail_$transformation[i], rlang::eval_tidy, data = dm)
+          rlang::env_bind(.env = e_exec, !!!modified)
+          rlang::env_bind(.env = private$source_$data, !!!modified)
+        }
+      } 
+      match_head = purrr::lift_dl(private$target_$matches)(private$head_$match)
+      if (match_head) {
+        for (i in 1:length(private$head_$transformation)) {
+          modified = purrr::map(private$head_$transformation[i], rlang::eval_tidy, data = dm)
+          rlang::env_bind(.env = e_exec, !!!modified)
+          rlang::env_bind(.env = private$target_$data, !!!modified)
+        }
       } 
       return(self)
     }

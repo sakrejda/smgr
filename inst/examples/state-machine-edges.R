@@ -2,6 +2,7 @@
 # match up with the scenario of brook trout emigrating from a small stream
 # through a one-way barrier.  Fish are tagged in the small stream or main stem
 # and they can only be observed after tagging.
+devtools::install(); unloadNamespace('smgr'); 
 library(smgr)
 
 nodes = smgr:::NodeSet$new(
@@ -70,26 +71,88 @@ captured = nodes %>%
 
 # Initialize populations
 nodes %>% 
-  smgr::filter(alive, !captured, !tagged, !tag_reading,
+  smgr::filter(alive, !captured, !tagged,
                location == "Tag Brook") %>%
   smgr::mutate(count = 194)
 nodes %>% 
-  smgr::filter(alive, !captured, !tagged, !tag_reading,
+  smgr::filter(alive, !captured, !tagged,
                location == "main stem") %>%
   smgr::mutate(count = 538)
 
-# Define edges / flows (what's the UX here?)
-migration = smgr:::DirectedEdge$new(
-  from = nodes$get('999be65e4685'),
-  tail = smgr:::Transition$new("emigration",
-    transformation = list(
-      emigrant_count = rbinom(n = 1, size = .from$count, prob = 1 - exp(-.from$emigration_rate)),
-      count = .from$count - emigrant_count
-    )),
-  to = nodes$get('652b058320'),
-  head = smgr:::Transition$new('immigration',
-    transformation = list(
-      count = .to$count + .from$emigrant_count))
+# Setup some commonly used transitions
+emigration_transition = smgr:::Transition$new("emigration",
+  match = list(alive, !captured),
+  transformation = list(
+    emigrant_count = rbinom(n = 1, size = .from$count, prob = 1 - exp(-.from$emigration_rate)),
+    count = .from$count - emigrant_count
+  ))
+
+immigration_transition = smgr:::Transition$new('immigration',
+  match = list(alive, !captured),
+  transformation = list(
+    count = .to$count + emigrant_count))
+
+
+death_transition = smgr:::Transition$new("death", 
+  match = list(isTRUE(alive)),
+  transformation = list(
+    death_count = rbinom(n = 1, size = .from$count, prob = 1 - exp(-.from$death_rate)),
+      count = .from$count - death_count
+    )
 )
 
+death_record_transition = smgr:::Transition$new("death record",
+  match = list(isTRUE(!alive)),
+  transformation = list(
+    count = .to$count + death_count)
+)
+
+
+# Define edges / flows (what's the UX here?)
+e_list = list(
+  smgr:::DirectedEdge$new(
+    from = nodes %>% 
+      smgr::filter(alive, !captured, !tagged, location == "Tag Brook") %>% 
+      smgr::pop(),
+    tail = emigration_transition,
+    to = nodes %>%
+      smgr::filter(alive, !captured, !tagged, location == "main stem") %>%
+      smgr::pop(),
+    head = immigration_transition),
+  smgr:::DirectedEdge$new(
+    from = nodes %>%
+      smgr::filter(alive, !captured, !tagged, location == "Tag Brook") %>%
+      smgr::pop(),
+    tail = death_transition,
+    to = nodes %>% 
+      smgr::filter(!alive, !captured, !tagged, location == "Tag Brook") %>%
+      smgr::pop(),
+    head = death_record_transition 
+  ),
+  smgr:::DirectedEdge$new(
+    from = nodes %>%
+      smgr::filter(alive, !captured, !tagged,
+                   location == "main stem") %>%
+      smgr::pop(),
+    tail = death_transition,
+    to = nodes %>% 
+      smgr::filter(!alive, !captured, !tagged,
+                   location == "main stem") %>%
+      smgr::pop(),
+    head = death_record_transition
+  )
+)
+
+
+# Run the simulation one step
+nodes$get('999be65e4685')$dump$count
+nodes$get('999be65e4685')$dump$emigrant_count
+nodes$get('652b058320')$dump$count
+for (i in seq_along(e_list)) {
+  e_list[[i]]$transfer()
+}
+nodes$get('999be65e4685')$dump$count
+nodes$get('999be65e4685')$dump$emigrant_count
+nodes$get('652b058320')$dump$count
+nodes %>% mutate(season = 'winter')
 

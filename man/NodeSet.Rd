@@ -25,6 +25,8 @@ insert.
 \item{\code{attributes}}{list of attributes of all nodes}
 
 \item{\code{data}}{list of data of all nodes}
+
+\item{\code{dump}}{all data/attributes from all nodes as lists}
 }
 \if{html}{\out{</div>}}
 }
@@ -36,6 +38,7 @@ insert.
 \item \href{#method-link}{\code{NodeSet$link()}}
 \item \href{#method-clear}{\code{NodeSet$clear()}}
 \item \href{#method-get}{\code{NodeSet$get()}}
+\item \href{#method-pop}{\code{NodeSet$pop()}}
 \item \href{#method-filter}{\code{NodeSet$filter()}}
 \item \href{#method-mutate}{\code{NodeSet$mutate()}}
 \item \href{#method-build}{\code{NodeSet$build()}}
@@ -125,9 +128,9 @@ clear the current nodes from the set
 \if{html}{\out{<a id="method-get"></a>}}
 \if{latex}{\out{\hypertarget{method-get}{}}}
 \subsection{Method \code{get()}}{
-get a specific node from the set
+get a node from the set
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{NodeSet$get(id)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{NodeSet$get(x)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -140,6 +143,17 @@ get a specific node from the set
 \subsection{Returns}{
 node with the 'id', or NULL if missing
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-pop"></a>}}
+\if{latex}{\out{\hypertarget{method-pop}{}}}
+\subsection{Method \code{pop()}}{
+pop the set, return the remaining node or 
+error if multiple nodes remain
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{NodeSet$pop()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-filter"></a>}}

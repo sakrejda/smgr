@@ -18,7 +18,6 @@ they can modfiy both nodes.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{DirectedEdge$new()}}
-\item \href{#method-do}{\code{DirectedEdge$do()}}
 \item \href{#method-transfer}{\code{DirectedEdge$transfer()}}
 \item \href{#method-clone}{\code{DirectedEdge$clone()}}
 }
@@ -54,15 +53,6 @@ or data `foo` in the tail node.}
 \subsection{Returns}{
 a 'DirectedEdge' object
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-do"></a>}}
-\if{latex}{\out{\hypertarget{method-do}{}}}
-\subsection{Method \code{do()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{DirectedEdge$do(...)}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-transfer"></a>}}
