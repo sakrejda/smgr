@@ -52,7 +52,7 @@ as_graph = function(x) {
   for (id in node_ids) {
     node_json = x$get(id)$json
     gr = igraph::set.vertex.attribute(gr, 'json', id, value = node_json)
-    attributes = x$get(id)$attributes
+    attributes = names(x$get(id)$attributes)
     for (attr in attributes) {
       gr = igraph::set.vertex.attribute(gr, attr, id, value = x$get(id)$get(!!attr))
     }

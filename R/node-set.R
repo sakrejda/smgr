@@ -26,6 +26,8 @@ NodeSet = R6::R6Class("NodeSet",
     #' @return TRUE iff the new node was not identical to any other node (set
     #' size increases).
     insert = function(x) {
+      if (is.null(x))
+        return(FALSE)
       if (!("Node" %in% class(x))) {
         return(FALSE)
       }
@@ -122,19 +124,27 @@ NodeSet = R6::R6Class("NodeSet",
     #' @param process the process to apply
     #' @return the final count of nodes
     build = function(process) {
+      build_rounds = 0
+      new_nodes = numeric()
       n_trz = process$size
-      modified = TRUE
-      while(isTRUE(modified)) {
-        modified = FALSE
-        for (i in 1:n_trz) {
-          trz = process$get_transition(i)
-          ids = self$ids
-          for (id in ids) {
+      ids = self$ids
+      ids_ = character()
+      while(length(ids) > 0) {
+        for (id in ids) {
+          for (i in 1:n_trz) {
+            trz = process$get_transition(i)
             new_node = self$get(id)$transform(trz)
-            modified = modified || self$insert(new_node)
+            updated = self$insert(new_node)
           }
         }
+        ids_ = c(ids_, ids) %>% unique
+        ids = self$ids[!(self$ids %in% ids_)]
+        stopifnot(all(ids_ %in% self$ids))
+        build_rounds = build_rounds + 1
+        new_nodes = c(new_nodes, length(ids))
       }
+      private$build_rounds_ = build_rounds
+      private$new_nodes_ = new_nodes
       return(self$size)
     },
 
@@ -158,7 +168,9 @@ NodeSet = R6::R6Class("NodeSet",
   private = list(
     nodes_ = list(),
     edges_ = list(),
-    edge_list_ = list()
+    edge_list_ = list(),
+    build_rounds_ = 0,
+    new_nodes_ = numeric()
   ),
   active = list(
 

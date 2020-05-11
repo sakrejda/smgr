@@ -9,15 +9,14 @@
 #'
 #' @return a string tag 
 #' @export
-compose_tag = function(name, env, sep = default_sep()) {
+compose_tag = function(name, env, sep = smgr:::default_sep()) {
   env_names = ls(envir = env)
   env = rlang::env_get_list(env, env_names)
-  tag_parts = character()
+  tag_parts = paste0(name, sep, sep)
   for (env_name in env_names) {
-    tag_parts = c(tag_parts, env_name, sep, as.character(env[[env_name]]))
+    tag_parts = c(tag_parts, paste0(env_name, sep, as.character(env[[env_name]])))
   }
-  envr_tag = do.call(paste, args = c(tag_parts, list(sep = '--')))
-  tag = paste0(name, sep, envr_tag)
+  tag = do.call(paste, args = c(tag_parts, list(sep = '--')))
   return(tag)
 }
 
@@ -30,9 +29,9 @@ compose_tag = function(name, env, sep = default_sep()) {
 #'
 #' @return a string id (hash)
 #' @export
-compose_id = function(name, env, generator = smgr::default_hash()) {
+compose_id = function(name, env, generator = smgr::default_hash) {
   tag = compose_tag(name, env)
-  id = openssl::sha512(x = tag)
+  id = generator(x = tag)
   return(id)
 }
 
