@@ -4,7 +4,7 @@
 \alias{compose_id}
 \title{Create a numeric id from a name and environment}
 \usage{
-compose_id(name, env, generator = smgr::default_hash())
+compose_id(name, env, generator = smgr::default_hash)
 }
 \arguments{
 \item{name}{name of object the id is created for}

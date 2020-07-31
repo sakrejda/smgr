@@ -41,7 +41,7 @@ as_graph = function(x) {
   edges = as_edges(x) 
   edges_df = edges %>% 
     purrr::set_names(rep('', length(.))) %>% 
-    purrr::map_depth(2,  ~ dplyr::bind_rows(.)) %>% 
+    purrr::map_depth(1, dplyr::bind_rows) %>% 
     purrr::lift_dl(dplyr::bind_rows)()
   if (!requireNamespace('igraph'))
     return(edges_df)
@@ -58,6 +58,18 @@ as_graph = function(x) {
     }
   }
   return(gr) 
+}
+
+#' Turn the node list into a data frame of attributes
+#'
+#' @ param x node list
+#' @return a data frame of id's and node attributes
+#' @export
+as_df = function(x) {
+  ids = x$ids
+  attr = purrr::lift_dl(dplyr::bind_rows)(x$attributes)
+  df = dplyr::bind_cols(id = ids, attr)
+  return(df)
 }
 
 

@@ -4,7 +4,7 @@
 \alias{compose_tag}
 \title{Create a label ("tag") from a name and environment}
 \usage{
-compose_tag(name, env, sep = default_sep())
+compose_tag(name, env, sep = smgr:::default_sep())
 }
 \arguments{
 \item{name}{name of object the tag is created for}

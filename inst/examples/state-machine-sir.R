@@ -82,7 +82,7 @@ attr_string = function(gr, attr) {
 
 # A plot of sorts
 gr = smgr::as_graph(states)
-pdf("/tmp/sir-graph.pdf", width = 100, height = 100)
+pdf("/tmp/sir-graph.pdf", width = 65, height = 65)
 plot(gr, 
   vertex.label = paste(
     attr_string(gr, "outcome"),
@@ -95,8 +95,6 @@ plot(gr,
   ),
   vertex.shape = 'square',
   vertex.color = 'lightyellow',
-  vertex.size = 7
+  vertex.size = 10
 ); dev.off()
 
-# Valid combinations
-states$dump %>% dplyr::bind_rows()

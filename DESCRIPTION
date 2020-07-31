@@ -17,4 +17,4 @@ Imports:
     dplyr, purrr, rlang, magrittr, digest
 Suggests: 
     testthat (>= 2.1.0), jsonlite, igraph
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
