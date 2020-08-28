@@ -99,3 +99,5 @@ plot(gr,
 # Plausible data, according to the model 
 data_description = smgr:::as_df(states)
 
+# Show plausible data
+data_description %>% data.frame %>% print
