@@ -100,4 +100,17 @@ plot(gr,
 data_description = smgr:::as_df(states)
 
 # Show plausible data
-data_description %>% data.frame %>% print
+data_description %>% data.frame %>% 
+  dplyr::filter(tag_record %in% c("hand scanner", "antenna")) %>%
+  print
+
+# data = data.frame(...)   there's some observed data
+#
+#impossible_data = dplyr::left_join(
+#  x = data, 
+#  y = data_description %>% dplyr::filter(tag_record %in% c('hand scanner', 'antenna')),
+#  by = c('location', 'alive', 'tag_record', 'handling', 'tagged')
+#) %>% dplyr::filter(is.na(id))
+
+
+
